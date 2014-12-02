@@ -48,7 +48,7 @@ int main() {
         res = htable_lookup(htable, s);
         if(res == NULL) {
             perror("List or list item initialization failed");
-            htable_free(htable);
+            htable_free(&htable);
             return EXIT_FAILURE;
         }
     }
@@ -61,6 +61,6 @@ int main() {
         printf("%d %s\n", iterator.ptr->data, iterator.ptr->key);
     }
 
-    htable_free(htable);
+    htable_free(&htable);
     return 0;
 }

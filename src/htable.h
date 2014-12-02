@@ -59,7 +59,7 @@ struct htable_listitem {
 htable_t * htable_init(unsigned int size);
 
 /* Free space after table and all its contents. */
-void htable_free(htable_t *htable);
+void htable_free(htable_t **htable);
 
 /**
  * Find the key in the htable. If found, increase the count (data) of the kay.

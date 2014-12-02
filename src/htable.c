@@ -78,11 +78,11 @@ void _htable_clear(htable_t * htable) {
     }
 }
 
-void htable_free(htable_t * htable) {
-    _htable_clear(htable);
-    free(htable->list);
-    free(htable);
-    htable = NULL;
+void htable_free(htable_t **htable) {
+    htable_clear(*htable);
+    free((*htable)->list);
+    free(*htable);
+    *htable = NULL;
 }
 
 htable_listitem_t * htable_lookup(htable_t * htable, const char * key) {
