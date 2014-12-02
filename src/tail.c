@@ -48,7 +48,7 @@ int tail_minus(FILE *file, unsigned long int lines);
 /* print lines starting from line number X */
 void tail_plus(FILE *file, unsigned long int line);
 
-void free_2d_array(char **array, int size);
+void free_2d_array(char **array[], int size);
 
 void print_help();
 
@@ -159,10 +159,10 @@ int tail_minus (FILE * file, unsigned long int lines_requested) {
         i = i % lines_saved;
         printf("%s", line_buffer[i]);
     }
-    free_2d_array(line_buffer, lines_requested);
+    free_2d_array(&line_buffer, lines_requested);
     return 0;
 error:
-    free_2d_array(line_buffer, lines_requested);
+    free_2d_array(&line_buffer, lines_requested);
     return -1;
 }
 
@@ -174,15 +174,16 @@ void tail_plus(FILE *file, unsigned long int line) {
     }
 }
 
-void free_2d_array(char **array, int size) {
+void free_2d_array(char **array_p[], int size) {
     // assumes that the array is initialized with zeros
+    char **array = *array_p;
     if(array == NULL) return;
     for (int i = 0; i < size; i++) {
         if(array[i]) free(array[i]);
         array[i] = NULL;
     }
     free(array);
-    array = NULL;
+    *array_p = NULL;
 }
 
 void print_help() {
