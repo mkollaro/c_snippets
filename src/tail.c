@@ -43,7 +43,7 @@ typedef struct params {
 params_t get_params(int argc, char *argv[]);
 
 /* print last X lines */
-void tail_minus(FILE *file, unsigned long int lines);
+int tail_minus(FILE *file, unsigned long int lines);
 
 /* print lines starting from line number X */
 void tail_plus(FILE *file, unsigned long int line);
@@ -61,8 +61,13 @@ int main(int argc, char *argv[]) {
         input = fopen(params.filename, "r");
         check(input, "Can't open file '%s'", params.filename);
     }
-    if (params.plus_minus == MINUS) tail_minus(input, params.lines);
-    else                            tail_plus(input, params.lines);
+    if (params.plus_minus == MINUS) {
+        int res = tail_minus(input, params.lines);
+        if(res != 0) goto error;
+    }
+    else {
+        tail_plus(input, params.lines);
+    }
 
     fclose(input);
     return 0;
@@ -122,47 +127,46 @@ error:
     exit(EXIT_FAILURE);
 }
 
-void tail_minus (FILE * file, unsigned long int lines) {
+int tail_minus (FILE * file, unsigned long int lines_requested) {
     char s[MAX_LINE] = {'\0'};
     unsigned long int lines_saved = 0;
-    char **line_buffer = (char **)malloc(lines * sizeof(char *));
+    char **line_buffer = (char **)calloc(lines_requested, sizeof(char *));
+    check_mem(line_buffer);
 
-    unsigned int i = 0;
-    for ( ; fgets(s, MAX_LINE, file) != NULL; i++, i = i % lines) {
+    unsigned int i;
+    for (i = 0; fgets(s, MAX_LINE, file) != NULL;
+            i++, i = i % lines_requested) {
         if(strlen(s) >= (MAX_LINE-1) && s[MAX_LINE-2] != '\n') {
-            fputs("Line too long\n", stderr);
-            free_2d_array(line_buffer, lines_saved);
-            fclose(file);
-            exit(EXIT_FAILURE);
+            fail("Line too long (longer lines not implemented)");
         }
 
-        if (lines > lines_saved) {
-            assert(i <= lines);
+        if (lines_requested > lines_saved) {
+            // create new line in buffer, since we still read less lines than
+            // we want to print
+            assert(i <= lines_requested);
             line_buffer[i] = (char *)malloc(MAX_LINE * sizeof(char));
-            if(line_buffer[i] == NULL) {
-                perror("Out of memory");
-                free_2d_array(line_buffer, lines_saved);
-                fclose(file);
-                exit(EXIT_FAILURE);
-            }
+            check_mem(line_buffer[i]);
             strncpy(line_buffer[i], s, MAX_LINE);
             lines_saved++;
         }
-        else {
+        else { // overwrite older line, since we won't need it
             strncpy(line_buffer[i], s, MAX_LINE);
         }
     }
-    unsigned int head = i;
-    unsigned int j = 0;
     // print the buffered lines.
-    for (int i = head ; j < lines_saved; i++, j++) {
+    unsigned int j = 0;
+    for ( ; j < lines_saved; i++, j++) {
         i = i % lines_saved;
         printf("%s", line_buffer[i]);
     }
-    free_2d_array(line_buffer, lines_saved);
+    free_2d_array(line_buffer, lines_requested);
+    return 0;
+error:
+    free_2d_array(line_buffer, lines_requested);
+    return -1;
 }
 
-void tail_plus(FILE * file, unsigned long int line) {
+void tail_plus(FILE *file, unsigned long int line) {
     char s[MAX_LINE+1];
     for (unsigned int i = 0; fgets(s, MAX_LINE, file) != NULL; i++) {
         // print forever if necessary (if stdio doesn't end)
@@ -171,8 +175,10 @@ void tail_plus(FILE * file, unsigned long int line) {
 }
 
 void free_2d_array(char **array, int size) {
+    // assumes that the array is initialized with zeros
+    if(array == NULL) return;
     for (int i = 0; i < size; i++) {
-        free(array[i]);
+        if(array[i]) free(array[i]);
         array[i] = NULL;
     }
     free(array);
