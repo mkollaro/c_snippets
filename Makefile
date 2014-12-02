@@ -64,10 +64,15 @@ src/htable.so: $(OBJ_HTABLE)
 
 
 tests:
-	make
-	# TAIL
+	@echo "== lint check =="
+	@cppcheck --std=c11 --enable=all \
+		--suppress=missingIncludeSystem \
+		--suppress=unusedFunction \
+		src/
+	@echo
+	@echo "== test tail =="
 	bats tests/tail.bats
-	# WORD COUNT
+	@echo "== test wordcount =="
 	bats tests/wordcount.bats
 
 clean:

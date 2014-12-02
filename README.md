@@ -16,7 +16,7 @@ I was just learning C, thus they might not be of the highest quality.
 
 ## Usage:
 
-You will need the **gcc** compiler and build tools, which you can get by
+You will need the `gcc` compiler and build tools, which you can get by
 running on Debian-based systems like Ubuntu:
 
     $ sudo apt-get install build-essential
@@ -25,7 +25,7 @@ running on Debian-based systems like Ubuntu:
 Afterwards, just run:
 
     $ make
-    $ make tests
+    $ make tests  # you will need `valgrind` and `cppcheck` for this
 
 Program usage examples:
 
