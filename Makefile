@@ -13,9 +13,10 @@
 # limitations under the License.
 CC = gcc
 CFLAGS = -std=c99 -Wall -Wextra -Isrc -pedantic -g -O2 -fPIC
+CFLAGS += -DDEBUG
 
 EXE = tail wordcount wordcount-static
-OBJ_TAIL = src/tail.o 
+OBJ_TAIL = src/tail.o src/debug.o
 OBJ_HTABLE = src/htable.o src/htable_iterator.o
 OBJ_WORDCOUNT = src/wordcount.o src/io.o
 
