@@ -1,0 +1,8 @@
+*.a
+*.so
+src/dep.list
+tail
+tail2
+wordcount
+wordcount-static
+*log
