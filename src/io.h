@@ -20,7 +20,7 @@
 #include <stdbool.h>
 
 /**
- * Read a word (characters separeted from others by `isspace` characters -
+ * Read a word (characters separated from others by `isspace` characters -
  * spaces, tabs, newlines, etc). If the input word is longer than (max-1), it
  * will ignore the extra characters, write '\0' to the out[max-1] position, but
  * still read trough the rest, leaving the file pointing to the beginning of
@@ -31,7 +31,7 @@
  *      needed for '\0'), so the number of saved characters will be (max-1).
  * @param file: Input file pointer.
  * @return: Number of characters in the original word (will be bigger than
- *      'max' if the lenght of the input word is bigger than 'max'. 0 if EOF
+ *      'max' if the length of the input word is bigger than 'max'. 0 if EOF
  *      was reached.
  */
 int read_word(char *out, unsigned int max, FILE *file);

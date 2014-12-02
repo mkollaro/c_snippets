@@ -29,8 +29,8 @@ int read_word(char *out, unsigned int max, FILE *file) {
     assert(max > 2); // have space for at least one char + '\0'
     // read first character
     int c = '\0';
-    while (c = getc(file), isspace(c) && c != EOF) {}
-    if (isspace(c) || c == EOF || c == '\0')
+    while(c = getc(file), isspace(c) && c != EOF) {}
+    if(isspace(c) || c == EOF || c == '\0')
         return 0;  // file is empty or contains only spaces
     else
         out[0] = (char)c;
@@ -38,13 +38,13 @@ int read_word(char *out, unsigned int max, FILE *file) {
     // read the rest of the characters until a whitespace or EOF is found
     bool word_trimmed = false;
     unsigned int i;
-    for (i = 1; c = getc(file), !isspace(c) && c != EOF; i++) {
-        if (i < (max - 1)) {
+    for(i = 1; c = getc(file), !isspace(c) && c != EOF; i++) {
+        if(i < (max - 1)) {
             out[i] = (char)c;
         }
         else {
             word_trimmed = true;
-            if (!warning_printed) {
+            if(!warning_printed) {
                 warning_printed = true;
                 fputs("Warning: Some words may be shortened\n", stderr);
             }
@@ -52,7 +52,7 @@ int read_word(char *out, unsigned int max, FILE *file) {
     }
 
     assert(word_trimmed || i <= (max -1));
-    if (word_trimmed) out[max-1] = '\0';
-    else              out[i] = '\0';
+    if(word_trimmed) out[max-1] = '\0';
+    else             out[i] = '\0';
     return i;
 }

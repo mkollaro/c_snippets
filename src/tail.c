@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
         input = fopen(params.filename, "r");
         check(input, "Can't open file '%s'", params.filename);
     }
-    if (params.plus_minus == MINUS) {
+    if(params.plus_minus == MINUS) {
         int res = tail_minus(input, params.lines);
         if(res != 0) goto error;
     }
@@ -88,11 +88,11 @@ params_t get_params(int argc, char *argv[]) {
     bool filename_set = false;
 
     for(int i = 1; i < argc; i++) {
-        if (strncmp(argv[i], "-h", 2) == 0) {
+        if(strncmp(argv[i], "-h", 2) == 0) {
             print_help();
             exit(EXIT_SUCCESS);
         }
-        else if (argv[i][0] == '-' || argv[i][0] == '+' ) {
+        else if(argv[i][0] == '-' || argv[i][0] == '+' ) {
             check(lines_set == false, "Too many parameters");
             // --5 or --b is invalid
             check(argv[i][1] != '-', "Invalid parameter %s", argv[i]);
@@ -100,14 +100,14 @@ params_t get_params(int argc, char *argv[]) {
             char *end_p;
             result.lines = strtoul(argv[i] + 1, &end_p, 10);
             check(errno == 0, "Invalid parameter %s", argv[i]);
-            if (end_p == argv[i] + 1 || *end_p != '\0') {
+            if(end_p == argv[i] + 1 || *end_p != '\0') {
                 fail("Invalid parameter %s", argv[i]);
             }
             lines_set = true;
             result.plus_minus = (argv[i][0] == '+')? PLUS : MINUS;
 
             if(result.lines == 0) {
-                if (result.plus_minus == PLUS) {
+                if(result.plus_minus == PLUS) {
                     result.lines = 1;  // +0, special case, print all lines
                 }
                 else {
@@ -134,13 +134,13 @@ int tail_minus (FILE * file, unsigned long int lines_requested) {
     check_mem(line_buffer);
 
     unsigned int i;
-    for (i = 0; fgets(s, MAX_LINE, file) != NULL;
+    for(i = 0; fgets(s, MAX_LINE, file) != NULL;
             i++, i = i % lines_requested) {
         if(strlen(s) >= (MAX_LINE-1) && s[MAX_LINE-2] != '\n') {
             fail("Line too long (longer lines not implemented)");
         }
 
-        if (lines_requested > lines_saved) {
+        if(lines_requested > lines_saved) {
             // create new line in buffer, since we still read less lines than
             // we want to print
             assert(i <= lines_requested);
@@ -155,7 +155,7 @@ int tail_minus (FILE * file, unsigned long int lines_requested) {
     }
     // print the buffered lines.
     unsigned int j = 0;
-    for ( ; j < lines_saved; i++, j++) {
+    for( ; j < lines_saved; i++, j++) {
         i = i % lines_saved;
         printf("%s", line_buffer[i]);
     }
@@ -168,9 +168,9 @@ error:
 
 void tail_plus(FILE *file, unsigned long int line) {
     char s[MAX_LINE+1];
-    for (unsigned int i = 0; fgets(s, MAX_LINE, file) != NULL; i++) {
+    for(unsigned int i = 0; fgets(s, MAX_LINE, file) != NULL; i++) {
         // print forever if necessary (if stdio doesn't end)
-        if (i >= line - 1) printf("%s", s);
+        if(i >= line - 1) printf("%s", s);
     }
 }
 
@@ -178,7 +178,7 @@ void free_2d_array(char **array_p[], int size) {
     // assumes that the array is initialized with zeros
     char **array = *array_p;
     if(array == NULL) return;
-    for (int i = 0; i < size; i++) {
+    for(int i = 0; i < size; i++) {
         if(array[i]) free(array[i]);
         array[i] = NULL;
     }

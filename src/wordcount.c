@@ -35,17 +35,15 @@
 int main() {
     htable_t * htable;
     htable = htable_init(HTABLE_SIZE);
+    char s[MAX_WORD_SIZE]  = {'\0'};
     if(htable == NULL) {
         perror("Hash table initialization failed");
         return EXIT_FAILURE;
     }
 
-    htable_listitem_t * res = NULL;
-    char s[MAX_WORD_SIZE]  = {'\0'};
-
     // read the words and look them up in the hash table
     while(read_word(s, MAX_WORD_SIZE, stdin)) {
-        res = htable_lookup(htable, s);
+        htable_listitem_t *res = htable_lookup(htable, s);
         if(res == NULL) {
             perror("List or list item initialization failed");
             htable_free(&htable);

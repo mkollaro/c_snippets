@@ -45,12 +45,12 @@
 htable_t * htable_init(unsigned int size) {
     // alloc space for the table
     htable_t *htable = malloc(sizeof(htable_t));
-    if (htable == NULL)
+    if(htable == NULL)
         return NULL;
 
     // alloc an array of pointers, pointing to lists
     htable->list = (htable_list_t *)calloc(size, sizeof(htable_list_t));
-    if (htable->list == NULL) {
+    if(htable->list == NULL) {
         free(htable);
         return NULL;
     }
@@ -59,9 +59,9 @@ htable_t * htable_init(unsigned int size) {
 }
 
 /* Free space after keys and items */
-void _htable_clear(htable_t * htable) {
+static void htable_clear(htable_t *htable) {
     for(unsigned int i = 0; i < htable->size; i++) {
-        if (htable->list[i].head == NULL || htable->list[i].tail == NULL) {
+        if(htable->list[i].head == NULL || htable->list[i].tail == NULL) {
             assert(htable->list[i].head == NULL &&
                    htable->list[i].tail == NULL);
             continue;
@@ -85,11 +85,11 @@ void htable_free(htable_t **htable) {
     *htable = NULL;
 }
 
-htable_listitem_t * htable_lookup(htable_t * htable, const char * key) {
-    htable_listitem_t * result = NULL;
+htable_listitem_t * htable_lookup(htable_t *htable, const char *key) {
+    htable_listitem_t *result = NULL;
     unsigned int i = htable_hash_function(key, htable->size);
     bool found = false;
-    htable_listitem_t * tmp;
+    htable_listitem_t *tmp;
     tmp = htable->list[i].head;
 
     // search for the key, if found, increase its count and return the item
@@ -113,7 +113,7 @@ htable_listitem_t * htable_lookup(htable_t * htable, const char * key) {
         // alloc space for one listitem
         htable->list[i].tail = (htable_listitem_t *)
                                 malloc(sizeof(htable_listitem_t));
-        if (htable->list[i].tail == NULL)
+        if(htable->list[i].tail == NULL)
             return NULL;
 
         // alloc space for the string
@@ -138,7 +138,7 @@ htable_listitem_t * htable_lookup(htable_t * htable, const char * key) {
     return result;
 }
 
-unsigned int htable_hash_function(const char * key, unsigned int htable_size) {
+unsigned int htable_hash_function(const char *key, unsigned int htable_size) {
     unsigned long int h = 0;
     unsigned char *p;
 
