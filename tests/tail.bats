@@ -30,7 +30,7 @@ MAX_LINE_LENGTH=1024
 @test "invalid params - two files specified" {
     run $CMD -6 $MAIN_FILE $MAIN_FILE
     [ $status -eq 1 ]
-    [[ "$output" =~ "Too many parameters" ]]
+    [[ "$output" =~ "The FILE can be set only once" ]]
 }
 
 @test "invalid params - two limits" {

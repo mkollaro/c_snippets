@@ -24,6 +24,8 @@
 #include <string.h>
 #include <assert.h>
 
+#include "debug.h"
+
 #define PLUS 1
 #define MINUS 0
 
@@ -41,33 +43,32 @@ typedef struct params {
 params_t get_params(int argc, char *argv[]);
 
 /* print last X lines */
-void tail_minus(FILE * file, unsigned long int lines);
+void tail_minus(FILE *file, unsigned long int lines);
 
 /* print lines starting from line number X */
-void tail_plus(FILE * file, unsigned long int line);
+void tail_plus(FILE *file, unsigned long int line);
 
-void free_2d_array(char ** array, int size);
+void free_2d_array(char **array, int size);
+
+void print_help();
 
 /*****************************************************************************/
 int main(int argc, char *argv[]) {
     params_t params = get_params(argc, argv);
     FILE *input = NULL;
-    // if a filename was given, open it, otherwise use stdin
-    if(params.filename == NULL) {
-        input = stdin;
-    }
+    if(params.filename == NULL) input = stdin;
     else {
         input = fopen(params.filename, "r");
-        if (input == NULL) {
-            perror("Can't open file");
-            exit(EXIT_FAILURE);
-        }
+        check(input, "Can't open file '%s'", params.filename);
     }
-
     if (params.plus_minus == MINUS) tail_minus(input, params.lines);
     else                            tail_plus(input, params.lines);
+
     fclose(input);
     return 0;
+error:
+    if(input) fclose(input);
+    exit(EXIT_FAILURE);
 }
 /*****************************************************************************/
 
@@ -82,25 +83,20 @@ params_t get_params(int argc, char *argv[]) {
     bool filename_set = false;
 
     for(int i = 1; i < argc; i++) {
-        if (argv[i][0] == '-' || argv[i][0] == '+' ) {
-            if(lines_set == true) {
-                fputs("Too many parameters\n", stderr);
-                exit(EXIT_FAILURE);
-            }
-            if(argv[i][1] == '-') {  // --5 or --b is invalid
-                fputs("Invalid parameter\n", stderr);
-                exit(EXIT_FAILURE);
-            }
-            errno = 0;
+        if (strncmp(argv[i], "-h", 2) == 0) {
+            print_help();
+            exit(EXIT_SUCCESS);
+        }
+        else if (argv[i][0] == '-' || argv[i][0] == '+' ) {
+            check(lines_set == false, "Too many parameters");
+            // --5 or --b is invalid
+            check(argv[i][1] != '-', "Invalid parameter %s", argv[i]);
+
             char *end_p;
             result.lines = strtoul(argv[i] + 1, &end_p, 10);
-            if (errno != 0) {
-                perror("Invalid parameter");
-                exit(EXIT_FAILURE);
-            }
+            check(errno == 0, "Invalid parameter %s", argv[i]);
             if (end_p == argv[i] + 1 || *end_p != '\0') {
-                fputs("Invalid parameter\n", stderr);
-                exit(EXIT_FAILURE);
+                fail("Invalid parameter %s", argv[i]);
             }
             lines_set = true;
             result.plus_minus = (argv[i][0] == '+')? PLUS : MINUS;
@@ -115,15 +111,15 @@ params_t get_params(int argc, char *argv[]) {
             }
         }
         else {
-            if(filename_set == true) {
-                fputs("Too many parameters\n", stderr);
-                exit(EXIT_FAILURE);
-            }
+            check(filename_set == false, "The FILE can be set only once");
             result.filename = argv[i];
             filename_set = true;
         }
     }
     return result;
+error:
+    print_help();
+    exit(EXIT_FAILURE);
 }
 
 void tail_minus (FILE * file, unsigned long int lines) {
@@ -169,8 +165,8 @@ void tail_minus (FILE * file, unsigned long int lines) {
 void tail_plus(FILE * file, unsigned long int line) {
     char s[MAX_LINE+1];
     for (unsigned int i = 0; fgets(s, MAX_LINE, file) != NULL; i++) {
-        if (i >= line - 1) // there should be no limit here
-            printf("%s", s);
+        // print forever if necessary (if stdio doesn't end)
+        if (i >= line - 1) printf("%s", s);
     }
 }
 
@@ -181,4 +177,14 @@ void free_2d_array(char **array, int size) {
     }
     free(array);
     array = NULL;
+}
+
+void print_help() {
+    puts("Usage: tail [OPTIONS] [FILE]\n"
+         "Print the last 10 lines of FILE to standard output. "
+         "If no FILE is given, read standard input.\n"
+         "-h\tshow usage information\n"
+         "-X\toutput the last X lines\n"
+         "+X\toutput all the lines starting from the Xth line "
+         "(`tail +1` will print everything)");
 }
